@@ -3,7 +3,8 @@ from typing import TypedDict, List
 from dotenv import load_dotenv
 from pypdf import PdfReader
 from PIL import Image
-import google.generativeai as genai  # New SDK client
+import streamlit as st
+from google import genai
 from langgraph.graph import StateGraph, END
 from tavily import TavilyClient
 import datetime
@@ -22,8 +23,8 @@ try:
 except AttributeError:
     pass
 
-client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
-tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
+client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
+tavily = TavilyClient(api_key=st.secrets["TAVILY_API_KEY"])
 
 # LLMOps Pricing (Flash Lite average $0.0001 per 1k tokens)
 COST_PER_1K_TOKENS = 0.0001 
@@ -186,7 +187,10 @@ workflow.add_edge("masterpiece", END)
 app = workflow.compile()
 
 # --- 10. EXECUTION ---
-if __name__ == "__main__":
+st.title("🛡️ Медицински Ревизор MCP V1.1")
+st.write("Притиснете го копчето за да започнете со анализа на медицинската документација.")
+
+if st.button("Започни анализа"):
     print("🛡️ STARTING CLINICAL REVISOR MCP V1.1...")
     
     def load_file(fn):
@@ -204,35 +208,43 @@ if __name__ == "__main__":
         pdf_text = load_file("patient_record.txt")
 
     initial_state = {
-        "pdf_data": pdf_text, "vision_description": "", "research_data": "", "draft": "", 
-        "insta_post": "", "critic_feedback": "", "iteration_count": 0, "total_tokens": 0, 
-        "estimated_cost": 0.0, "voice_script": "", "english_version": "",
-        "master_rules": rules_text, "lessons_learned": lessons_text
+        "pdf_data": pdf_text, 
+        "vision_description": "", 
+        "research_data": "", 
+        "draft": "", 
+        "insta_post": "", 
+        "critic_feedback": "", 
+        "iteration_count": 0, 
+        "total_tokens": 0, 
+        "estimated_cost": 0.0, 
+        "voice_script": "", 
+        "english_version": "",
+        "master_rules": rules_text, 
+        "lessons_learned": lessons_text
     }
     
-    # Invoke Agent
+    # Стартување на агентот
     final_output = app.invoke(initial_state)
     
-    # Create output folder and save final files
+    # Креирање папка и зачувување (локално на серверот на Streamlit)
     os.makedirs("FINAL_MEDICAL_OUTPUT", exist_ok=True)
     
-    # 1. Macedonian Clinical Summary
     with open("FINAL_MEDICAL_OUTPUT/Clinical_Summary_MK.txt", "w", encoding="utf-8") as f:
         f.write(final_output["draft"])
         
-    # 2. Global English Report
     with open("FINAL_MEDICAL_OUTPUT/Global_Report_EN.txt", "w", encoding="utf-8") as f:
         f.write(final_output["english_version"])
         
-    # 3. Patient Voice-over Script
-    with open("FINAL_MEDICAL_OUTPUT/Patient_Voice_Guide.txt", "w", encoding="utf-8") as f:
-        f.write(final_output["voice_script"])
-        
-    # 4. Patient Educational Content
-    with open("FINAL_MEDICAL_OUTPUT/Patient_Education_Social.txt", "w", encoding="utf-8") as f:
-        f.write(final_output["insta_post"])
+    # Приказ на резултатите во самиот Streamlit интерфејс
+    st.success("🏆 КЛИНИЧКАТА РЕВИЗИЈА Е ЗАВРШЕНА!")
     
-    print(f"\n🏆 CLINICAL AUDIT COMPLETED!")
-    print(f"📊 Total tokens used: {final_output['total_tokens']}")
-    print(f"💰 Final calculated cost: ${final_output['estimated_cost']:.4f}")
-    print("📁 All reports are saved in the 'FINAL_MEDICAL_OUTPUT' folder.")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Медицински извештај (MK)")
+        st.write(final_output["draft"])
+    
+    with col2:
+        st.subheader("Глобален извештај (EN)")
+        st.write(final_output["english_version"])
+
+    st.info(f"📊 Вкупно токени: {final_output['total_tokens']} | 💰 Цена: ${final_output['estimated_cost']:.4f}")
