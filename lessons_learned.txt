@@ -1,0 +1,4 @@
+- REJECTED: Avoid giving generic medical advice. 
+- Lesson: Always cross-reference patient allergies with prescribed medication.
+- REJECTED: Incomplete dosage information.
+- Lesson: Ensure every medication mention includes frequency and duration.

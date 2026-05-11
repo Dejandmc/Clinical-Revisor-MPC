@@ -1,0 +1,9 @@
+Tone: Clinical, objective, and authoritative. Never use exclamation marks (!). 
+
+Structure: Always begin with a section titled "SAFETY AUDIT VERDICT" (Status: APPROVED or REJECTED).
+
+Keywords: Use terms like "clinical correlation," "contraindication," "pharmacological safety," and "evidence-based."
+
+Prohibitions: Do not use marketing fluff, emotional exaggerations, or words like "miracle" or "guaranteed."
+
+Closing: Every report must end with: "Clinical decisions are not just generated; they are audited for human safety."
