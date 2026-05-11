@@ -3,7 +3,7 @@ from typing import TypedDict, List
 from dotenv import load_dotenv
 from pypdf import PdfReader
 from PIL import Image
-from google import genai  # New SDK client
+import google.generativeai as genai  # New SDK client
 from langgraph.graph import StateGraph, END
 from tavily import TavilyClient
 import datetime
